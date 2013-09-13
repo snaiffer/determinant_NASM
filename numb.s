@@ -84,8 +84,6 @@ section	.text
 
 	 call print_num
 
-
-
 		mov	eax,1       ;system call number (sys_exit)
 		int	0x80        ;call kernel
 
@@ -108,7 +106,7 @@ print_num:
 		mov word [num], ax
 
 		JMP extract_no
-		
+
 	print_no:
 		cmp byte [nod], 0
 			JE end_print
@@ -127,12 +125,12 @@ print_num:
 		mov ecx, temp
 		mov edx, 1
 		int 0x80
-		
+
 		JMP print_no
-	
+
 	end_print:
 	mov esp, [tempd]
-	
+
 	ret
 
 
@@ -166,23 +164,29 @@ read_num:
 		 JMP read_NewChar
 
 	rank_more_0:
-		 mov al, [rank]
-		 mov bl, 10
-		 mul bl
+		 mov al, 1 
+		 mov cl, [rank]
+		 L1:
+			 mov bl, 10
+			 mul bl
+		 dec cl
+		 JNZ L1
+
 		 mul byte [temp]
-		 add [num], ax
 
 
-;		 mov dl, bl
+;		 mov dx, ax
 ;		mov byte [temp], dl
 ;
-;		add byte [num], '0'
+;		add byte [temp], '0'
 ;		mov eax, SYS_WRITE
 ;		mov ebx, STDOUT
-;		mov ecx, num
+;		mov ecx, temp
 ;		mov edx, 1
 ;		int 0x80
+;
 
+		 add [num], ax
 
 		 inc byte [rank]
 		 JMP read_NewChar
