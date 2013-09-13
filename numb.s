@@ -40,6 +40,7 @@ section	.bss
 	num	resw	1
 	temp	resb	1
 	rank	resb	1
+	cur_rank	resb	1
 	nod	resb	1
 	tempd	resd	1
 
@@ -92,7 +93,7 @@ section	.text
 	 int	0x80
 not1:
 
-;	 call print_num
+	 call print_num
 
 		mov	eax,1       ;system call number (sys_exit)
 		int	0x80        ;call kernel
@@ -153,6 +154,7 @@ print_num:
 read_num:
 		 mov byte [miss], 0
 		 mov byte [rank], 0
+		 mov byte [cur_rank], 0
 	read_NewChar:
 		 mov	eax, SYS_READ
 		 mov	ebx, STDIN
@@ -169,32 +171,18 @@ read_num:
 		 cmp byte [temp], '9'
 			JG not_num
 
-		 sub byte  [temp], '0'	;convert from ascii to decimal
-
-		 cmp byte [rank], 0
-			 JG rank_more_0
-
-		 mov bl, [temp]
-		 mov [num], bl
+		 mov al, byte [temp]
+		 push ax
 
 		 inc byte [rank]
+
 		 JMP read_NewChar
 
-	rank_more_0:
-		 mov al, 1 
-		 mov cl, [rank]
-		 L1:
-			 mov bl, 10
-			 mul bl
-		 dec cl
-		 JNZ L1
 
-		 mul byte [temp]
 
-		 add [num], ax
 
-		 inc byte [rank]
-		 JMP read_NewChar
+
+
 
 	not_num:
 		 cmp byte [temp], 0xa
@@ -205,13 +193,45 @@ read_num:
 		 JMP read_NewChar
 
 	end_read:
-
 		 cmp byte [miss], 0
 			JNE input_error
 
 		 cmp byte [rank], 0
 			JE input_error
 
+	get_new_rank:
+		 pop dx
+
+		 sub dl, '0'	;convert from ascii to decimal
+
+		 cmp byte [cur_rank], 0
+			 JG cur_rank_more_0
+
+		 mov bl, dl
+		 mov [num], bl
+
+		 JMP cur_rank_0
+
+
+	cur_rank_more_0:
+		 mov al, 1 
+		 mov cl, [cur_rank]
+		 L1:
+			 mov bl, 10
+			 mul bl
+		 dec cl
+		 JNZ L1
+
+		 mul dl
+
+		 add [num], ax
+
+	cur_rank_0:
+		 inc byte [cur_rank]
+
+		 mov al, [rank]
+		 cmp byte [cur_rank], al
+			JNE get_new_rank
 	ret
 
 	input_error:
