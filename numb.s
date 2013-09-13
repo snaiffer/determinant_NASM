@@ -63,13 +63,8 @@ section	.text
 	 mov	edx, msg_dimen_len
 	 int	0x80
 
-;	 mov	eax, SYS_READ
-;	 mov	ebx, STDIN
-;	 mov	ecx, dimen
-;	 mov	edx, 3
-;	 int	0x80
-;	 sub byte [dimen], '0'	;convert from ascii to decimal
-
+	 call read_num
+	 mov [dimen], al
 
 	 lea esi, [matrix]
 	 mov byte [i], 0
@@ -77,29 +72,48 @@ section	.text
 
 	 mov	eax, SYS_WRITE
 	 mov	ebx, STDOUT
-	 mov	ecx, msg_invit3
-	 mov	edx, msg_invit3_len
+	 mov	ecx, msg_invit1
+	 mov	edx, msg_invit1_len
 	 int	0x80
 
+	 mov al, [i]
+	 call print_num
 
-	 call read_num
-
-	 cmp word [num], 12
-		JNE not1
 	 mov	eax, SYS_WRITE
 	 mov	ebx, STDOUT
 	 mov	ecx, msg_invit2
 	 mov	edx, msg_invit2_len
 	 int	0x80
-not1:
 
+	 mov al, [j]
+	 call print_num
+
+	 mov	eax, SYS_WRITE
+	 mov	ebx, STDOUT
+	 mov	ecx, msg_invit3
+	 mov	edx, msg_invit3_len
+	 int	0x80
+
+	 call read_num
+	 mov [esi+2], al
+
+	 mov al, [num]
 	 call print_num
 
 		mov	eax,1       ;system call number (sys_exit)
 		int	0x80        ;call kernel
 
 
+
+
+
+
 print_num:
+	cmp al, 0
+		JE print_0
+
+	mov [num], al
+
 	mov byte [nod], 0
 	mov [tempd], esp
 
@@ -147,7 +161,15 @@ print_num:
 
 	end_print:
 	mov esp, [tempd]
+	ret
 
+	print_0:
+		mov byte [temp], '0'
+		mov eax, SYS_WRITE
+		mov ebx, STDOUT
+		mov ecx, temp
+		mov edx, 1
+		int 0x80
 	ret
 
 
@@ -177,12 +199,6 @@ read_num:
 		 inc byte [rank]
 
 		 JMP read_NewChar
-
-
-
-
-
-
 
 	not_num:
 		 cmp byte [temp], 0xa
@@ -214,7 +230,7 @@ read_num:
 
 
 	cur_rank_more_0:
-		 mov al, 1 
+		 mov al, 1
 		 mov cl, [cur_rank]
 		 L1:
 			 mov bl, 10
@@ -232,6 +248,8 @@ read_num:
 		 mov al, [rank]
 		 cmp byte [cur_rank], al
 			JNE get_new_rank
+
+		mov al, [num]
 	ret
 
 	input_error:

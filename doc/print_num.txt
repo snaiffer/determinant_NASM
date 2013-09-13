@@ -1,0 +1,75 @@
+print_num
+
+Description:
+Output number in decimal format. It can output in invert and in ordinary format.
+
+
+Example:
+
+section	.data
+ print_invert   db 1  ; if you want inverted output set it to 1
+
+section	.bss
+	num	resw	1
+
+section  .text
+	global  _start    ;must be declared for linker (ld)
+	_start:    ;tell linker entry point
+
+	 mov ax, 12345
+	 mov [num], ax
+	 call print_num
+
+	mov	eax,1       ;system call number (sys_exit)
+	int	0x80        ;call kernel
+
+print_num:
+	mov byte [nod], 0
+	mov [tempd], esp
+
+	extract_no:
+		cmp word [num], 0
+			JE print_no
+
+		inc byte [nod]
+		mov dx, 0
+		mov ax, word [num]
+		mov bx, 10
+		div bx
+		push dx
+
+		mov word [num], ax
+
+		JMP extract_no
+
+	print_no:
+		cmp byte [nod], 0
+			JE end_print
+
+		dec byte [nod]
+
+		cmp byte [print_invert], 1
+			JE invert
+		pop dx
+		JMP not_invert
+		invert:
+			mov ebp, esp
+			mov al, [nod]
+			mov dx, [ebp + eax*2]
+		not_invert:
+
+		mov byte [temp], dl
+
+		add byte [temp], '0'
+		mov eax, SYS_WRITE
+		mov ebx, STDOUT
+		mov ecx, temp
+		mov edx, 1
+		int 0x80
+
+		JMP print_no
+
+	end_print:
+	mov esp, [tempd]
+
+	ret
