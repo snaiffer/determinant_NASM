@@ -5,8 +5,9 @@ section	.data
 	STDIN			equ	2
 	STDOUT		equ	1
 
-	dimen	db	0
-	miss db 0
+	dimen				db	0
+	miss				db 0
+	print_invert	db	0	; for print_num procedure: if you want inverted output set it to 1
 
 ; Messages
 	msg_intro db 'The program for calculating the determinant of the matrix', 0xa, 0xa
@@ -82,7 +83,16 @@ section	.text
 
 	 call read_num
 
-	 call print_num
+	 cmp word [num], 12
+		JNE not1
+	 mov	eax, SYS_WRITE
+	 mov	ebx, STDOUT
+	 mov	ecx, msg_invit2
+	 mov	edx, msg_invit2_len
+	 int	0x80
+not1:
+
+;	 call print_num
 
 		mov	eax,1       ;system call number (sys_exit)
 		int	0x80        ;call kernel
@@ -113,9 +123,15 @@ print_num:
 
 		dec byte [nod]
 
-		mov ebp, esp
-		mov al, [nod]
-		mov dx, [ebp + eax*2]
+		cmp byte [print_invert], 1
+			JE invert
+		pop dx
+		JMP not_invert
+		invert:
+			mov ebp, esp
+			mov al, [nod]
+			mov dx, [ebp + eax*2]
+		not_invert:
 
 		mov byte [temp], dl
 
@@ -143,6 +159,7 @@ read_num:
 		 mov	ecx, temp
 		 mov	edx, 1
 		 int	0x80
+
 
 		 cmp byte [miss], '1'
 			JE not_num
@@ -173,18 +190,6 @@ read_num:
 		 JNZ L1
 
 		 mul byte [temp]
-
-
-;		 mov dx, ax
-;		mov byte [temp], dl
-;
-;		add byte [temp], '0'
-;		mov eax, SYS_WRITE
-;		mov ebx, STDOUT
-;		mov ecx, temp
-;		mov edx, 1
-;		int 0x80
-;
 
 		 add [num], ax
 
