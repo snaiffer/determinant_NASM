@@ -1,9 +1,8 @@
 section	.data
-	SYS_EXIT		equ	1
-	SYS_WRITE	equ	4
-	SYS_READ		equ	3
-	STDIN			equ	2
-	STDOUT		equ	1
+	SYS_EXIT				equ	1
+	SYS_WRITE			equ	4
+	SYS_READ				equ	3
+	KEYBOARD_SCREEN	equ	1	; the type of input/output devices (keybord, console)
 
 	dimen				db	0
 	miss				db 0
@@ -52,13 +51,13 @@ section	.text
 	 _start:    ;tell linker entry point
 
 	 mov	eax, SYS_WRITE
-	 mov	ebx, STDOUT
+	 mov	ebx, KEYBOARD_SCREEN
 	 mov	ecx, msg_intro
 	 mov	edx, msg_intro_len
 	 int	0x80
 
 	 mov	eax, SYS_WRITE
-	 mov	ebx, STDOUT
+	 mov	ebx, KEYBOARD_SCREEN
 	 mov	ecx, msg_dimen
 	 mov	edx, msg_dimen_len
 	 int	0x80
@@ -67,19 +66,19 @@ section	.text
 	 mov [dimen], al
 
 	 lea esi, [matrix]
-	 mov byte [i], 0
-	 mov byte [j], 0
+	 mov byte [i], 1
+	 mov byte [j], 1
 
 	 mov al, [dimen]
 	 mov dl, [dimen]
 	 mul dl
-	 mov cl, dl
+	 mov cl, al
 
 	 L2:
-		pusha
 
+		 pusha
 		 mov	eax, SYS_WRITE
-		 mov	ebx, STDOUT
+		 mov	ebx, KEYBOARD_SCREEN
 		 mov	ecx, msg_invit1
 		 mov	edx, msg_invit1_len
 		 int	0x80
@@ -88,7 +87,7 @@ section	.text
 		 call print_num
 
 		 mov	eax, SYS_WRITE
-		 mov	ebx, STDOUT
+		 mov	ebx, KEYBOARD_SCREEN
 		 mov	ecx, msg_invit2
 		 mov	edx, msg_invit2_len
 		 int	0x80
@@ -97,7 +96,7 @@ section	.text
 		 call print_num
 
 		 mov	eax, SYS_WRITE
-		 mov	ebx, STDOUT
+		 mov	ebx, KEYBOARD_SCREEN
 		 mov	ecx, msg_invit3
 		 mov	edx, msg_invit3_len
 		 int	0x80
@@ -107,13 +106,31 @@ section	.text
 
 		 mov al, [num]
 		 call print_num
+		 popa
 
-		popa
+
+		inc esi
+
+		mov al, [dimen]
+		cmp [j], al
+			JE new_row
+
+		inc byte [j]
+		JMP the_same_row
+
+	 new_row:
+		mov byte [j], 1
+		inc byte [i]
+
+	 the_same_row:
+		
+
 	 dec cl
 	 JNZ L2
 
 
-		mov	eax,1       ;system call number (sys_exit)
+		mov	eax, 1       ;system call number (sys_exit)
+		mov	ebx, 0		;success exit status
 		int	0x80        ;call kernel
 
 
@@ -165,7 +182,7 @@ print_num:
 
 		add byte [temp], '0'
 		mov eax, SYS_WRITE
-		mov ebx, STDOUT
+		mov ebx, KEYBOARD_SCREEN
 		mov ecx, temp
 		mov edx, 1
 		int 0x80
@@ -179,7 +196,7 @@ print_num:
 	print_0:
 		mov byte [temp], '0'
 		mov eax, SYS_WRITE
-		mov ebx, STDOUT
+		mov ebx, KEYBOARD_SCREEN
 		mov ecx, temp
 		mov edx, 1
 		int 0x80
@@ -193,7 +210,7 @@ read_num:
 		 mov byte [cur_rank], 0
 	read_NewChar:
 		 mov	eax, SYS_READ
-		 mov	ebx, STDIN
+		 mov	ebx, KEYBOARD_SCREEN
 		 mov	ecx, temp
 		 mov	edx, 1
 		 int	0x80
@@ -268,7 +285,7 @@ read_num:
 
 	input_error:
 			 mov	eax, SYS_WRITE
-			 mov	ebx, STDOUT
+			 mov	ebx, KEYBOARD_SCREEN
 			 mov	ecx, msg_IncorInput
 			 mov	edx, msg_IncorInput_len
 			 int	0x80
