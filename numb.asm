@@ -65,17 +65,30 @@ section	.text
 	 call read_num
 	 mov [dimen], al
 
-	 lea esi, [matrix]
+	 lea esi, [matrix]	; an index of the first element of the matrix
+	 mov dl, [dimen]		; a dimension of the matrix
+	 call read_matrix
+
+		mov	eax, 1       ;system call number (sys_exit)
+		mov	ebx, 0		;success exit status
+		int	0x80        ;call kernel
+
+
+
+; HowToUse (Example)
+; 
+;	 lea esi, [matrix]	; an index of the first element of the matrix
+;	 mov dl, [dimen]		; a dimension of the matrix
+;	 call read_matrix
+read_matrix:
 	 mov byte [i], 1
 	 mov byte [j], 1
 
-	 mov al, [dimen]
-	 mov dl, [dimen]
+	 mov al, dl
 	 mul dl
 	 mov cl, al
 
 	 L2:
-
 		 pusha
 		 mov	eax, SYS_WRITE
 		 mov	ebx, KEYBOARD_SCREEN
@@ -103,16 +116,11 @@ section	.text
 
 		 call read_num
 		 mov [esi+2], al
-
-		 mov al, [num]
-		 call print_num
 		 popa
-
 
 		inc esi
 
-		mov al, [dimen]
-		cmp [j], al
+		cmp [j], dl		; where dl --dimension of matrix
 			JE new_row
 
 		inc byte [j]
@@ -124,20 +132,15 @@ section	.text
 
 	 the_same_row:
 		
-
 	 dec cl
 	 JNZ L2
+	 ret
 
 
-		mov	eax, 1       ;system call number (sys_exit)
-		mov	ebx, 0		;success exit status
-		int	0x80        ;call kernel
-
-
-
-
-
-
+; HowToUse (Example)
+; 
+;		 mov al, [j]
+;		 call print_num
 print_num:
 	cmp al, 0
 		JE print_0
@@ -204,6 +207,10 @@ print_num:
 
 
 
+; HowToUse (Example)
+; 
+;		 call read_num
+;		 mov [esi+2], al
 read_num:
 		 mov byte [miss], 0
 		 mov byte [rank], 0
