@@ -268,18 +268,19 @@ print_num:
 ; HowToUse (Example)
 ; 
 ;		 call read_num
-;		 mov [esi+2], al
+;		 mov [num], al
 read_num:
+		 mov byte [num], 0
 		 mov byte [miss], 0
 		 mov byte [rank], 0
 		 mov byte [cur_rank], 0
+		 mov ebp, esp	;save state of stack
 	read_NewChar:
 		 mov	eax, SYS_READ
 		 mov	ebx, KEYBOARD_SCREEN
 		 mov	ecx, temp
 		 mov	edx, 1
 		 int	0x80
-
 
 		 cmp byte [miss], '1'
 			JE not_num
@@ -289,10 +290,14 @@ read_num:
 		 cmp byte [temp], '9'
 			JG not_num
 
-		 mov al, byte [temp]
-		 push ax
-
 		 inc byte [rank]
+
+		 mov al, [rank]
+		 cmp al, 2
+			JG not_num
+		 mov al, byte [temp]
+
+		 push ax
 
 		 JMP read_NewChar
 
@@ -354,6 +359,8 @@ read_num:
 			 mov	ecx, msg_IncorInput
 			 mov	edx, msg_IncorInput_len
 			 int	0x80
+
+			 mov esp, ebp
 			 JMP read_num
 
 
