@@ -126,7 +126,18 @@ correct_dimen:
 		JE det_for_4
 
 det_for_2:
+	 mov al, [esi]
+	 mov dl, [esi+3]
+	 imul dl
+	 mov bx, ax
 
+	 mov al, [esi+2]
+	 mov dl, [esi+1]
+	 imul dl
+
+	 sub bx, ax
+
+	 mov [det], bx
 	 JMP out_of_det
 
 det_for_3:
@@ -140,7 +151,8 @@ det_for_4:
 
 out_of_det:
 
-
+	 mov al, [det]
+	 call print_num
 
 		mov	eax, 1       ;system call number (sys_exit)
 		mov	ebx, 0		;success exit status
@@ -148,7 +160,7 @@ out_of_det:
 
 
 ; HowToUse (Example)
-; 
+;
 ;	 lea esi, [matrix]	; an index of the first element of the matrix
 ;	 mov dl, [dimen]		; a dimension of the matrix
 ;	 call print_matrix
@@ -191,13 +203,13 @@ print_matrix:
 		 popa
 
 	 p_the_same_row:
-		
+
 	 dec cl
 	 JNZ L3
 	 ret
 
 ; HowToUse (Example)
-; 
+;
 ;	 lea esi, [matrix]	; an index of the first element of the matrix
 ;	 mov dl, [dimen]		; a dimension of the matrix
 ;	 call read_matrix
@@ -252,17 +264,18 @@ read_matrix:
 		inc byte [i]
 
 	 the_same_row:
-		
+
 	 dec cl
 	 JNZ L2
 	 ret
 
 
 ; HowToUse (Example)
-; 
+;
 ;		 mov al, [j]
 ;		 call print_num
 print_num:
+	pusha
 	cmp al, 0
 		JE print_0
 
@@ -315,6 +328,7 @@ print_num:
 
 	end_print:
 	mov esp, [tempd]
+	popa
 	ret
 
 	print_0:
@@ -324,12 +338,13 @@ print_num:
 		mov ecx, temp
 		mov edx, 1
 		int 0x80
+	popa
 	ret
 
 
 
 ; HowToUse (Example)
-; 
+;
 ;		 call read_num
 ;		 mov [num], al
 read_num:
