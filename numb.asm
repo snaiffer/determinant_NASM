@@ -30,6 +30,12 @@ section	.data
 	msg_IncorInput db 'The value is not correct. Try again: '
 	msg_IncorInput_len	equ	$ - msg_IncorInput
 
+	msg_space db 0x09
+	msg_space_len	equ	$ - msg_space
+
+	msg_NewLine db 0xa
+	msg_NewLine_len	equ	$ - msg_NewLine
+
 
 	matrix	times 16 dw '0'
 
@@ -69,11 +75,63 @@ section	.text
 	 mov dl, [dimen]		; a dimension of the matrix
 	 call read_matrix
 
+	 lea esi, [matrix]	; an index of the first element of the matrix
+	 mov dl, [dimen]		; a dimension of the matrix
+	 call print_matrix
+
 		mov	eax, 1       ;system call number (sys_exit)
 		mov	ebx, 0		;success exit status
 		int	0x80        ;call kernel
 
 
+; HowToUse (Example)
+; 
+;	 lea esi, [matrix]	; an index of the first element of the matrix
+;	 mov dl, [dimen]		; a dimension of the matrix
+;	 call print_matrix
+print_matrix:
+	 mov byte [j], 1
+
+	 mov al, dl
+	 mul dl
+	 mov cl, al
+
+	 L3:
+		 pusha
+		 mov al, [esi]
+		 call print_num
+
+		 mov	eax, SYS_WRITE
+		 mov	ebx, KEYBOARD_SCREEN
+		 mov	ecx, msg_space
+		 mov	edx, msg_space_len
+		 int	0x80
+		 popa
+
+		inc esi
+
+		cmp [j], dl		; where dl --dimension of matrix
+			JE p_new_row
+
+		inc byte [j]
+		JMP p_the_same_row
+
+	 p_new_row:
+		mov byte [j], 1
+
+		 pusha
+		 mov	eax, SYS_WRITE
+		 mov	ebx, KEYBOARD_SCREEN
+		 mov	ecx, msg_NewLine
+		 mov	edx, msg_NewLine_len
+		 int	0x80
+		 popa
+
+	 p_the_same_row:
+		
+	 dec cl
+	 JNZ L3
+	 ret
 
 ; HowToUse (Example)
 ; 
@@ -115,7 +173,7 @@ read_matrix:
 		 int	0x80
 
 		 call read_num
-		 mov [esi+2], al
+		 mov [esi], al
 		 popa
 
 		inc esi
