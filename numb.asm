@@ -7,6 +7,7 @@ section	.data
 	dimen				db	0
 	miss				db 0
 	print_invert	db	0	; for print_num procedure: if you want inverted output set it to 1
+	det				dw	0
 
 ; Messages
 	msg_intro db 'The program for calculating the determinant of the matrix', 0xa, 0xa
@@ -30,11 +31,20 @@ section	.data
 	msg_IncorInput db 'The value is not correct. Try again: '
 	msg_IncorInput_len	equ	$ - msg_IncorInput
 
+	msg_IncorDimen db 'The value of dimension is not correct. It can not be more than 4. Try again: ', 0xa
+	msg_IncorDimen_len	equ	$ - msg_IncorDimen
+
 	msg_space db 0x09
 	msg_space_len	equ	$ - msg_space
 
 	msg_NewLine db 0xa
 	msg_NewLine_len	equ	$ - msg_NewLine
+
+	msg_ForMatrix db 0xa, 'For the matrix:', 0xa
+	msg_ForMatrix_len	equ	$ - msg_ForMatrix
+
+	msg_DetIs db 'the determinant = '
+	msg_DetIs_len	equ	$ - msg_DetIs
 
 
 	matrix	times 16 dw '0'
@@ -62,22 +72,75 @@ section	.text
 	 mov	edx, msg_intro_len
 	 int	0x80
 
+input_dimen:
 	 mov	eax, SYS_WRITE
 	 mov	ebx, KEYBOARD_SCREEN
 	 mov	ecx, msg_dimen
 	 mov	edx, msg_dimen_len
 	 int	0x80
-
 	 call read_num
 	 mov [dimen], al
+	 cmp al, 5
+		JL correct_dimen
 
+	 mov	eax, SYS_WRITE
+	 mov	ebx, KEYBOARD_SCREEN
+	 mov	ecx, msg_IncorDimen
+	 mov	edx, msg_IncorDimen_len
+	 int	0x80
+
+	JMP input_dimen
+
+correct_dimen:
+	 mov	eax, SYS_WRITE
+	 mov	ebx, KEYBOARD_SCREEN
+	 mov	ecx, msg_GenInvit
+	 mov	edx, msg_GenInvit_len
+	 int	0x80
 	 lea esi, [matrix]	; an index of the first element of the matrix
 	 mov dl, [dimen]		; a dimension of the matrix
 	 call read_matrix
 
+	 mov	eax, SYS_WRITE
+	 mov	ebx, KEYBOARD_SCREEN
+	 mov	ecx, msg_ForMatrix
+	 mov	edx, msg_ForMatrix_len
+	 int	0x80
 	 lea esi, [matrix]	; an index of the first element of the matrix
 	 mov dl, [dimen]		; a dimension of the matrix
 	 call print_matrix
+
+	 mov	eax, SYS_WRITE
+	 mov	ebx, KEYBOARD_SCREEN
+	 mov	ecx, msg_DetIs
+	 mov	edx, msg_DetIs_len
+	 int	0x80
+
+	 lea esi, [matrix]	; an index of the first element of the matrix
+	 mov dl, [dimen]		; a dimension of the matrix
+	 cmp dl, 2
+		JE det_for_2
+	 cmp dl, 3
+		JE det_for_3
+	 cmp dl, 4
+		JE det_for_4
+
+det_for_2:
+
+	 JMP out_of_det
+
+det_for_3:
+
+	 JMP out_of_det
+
+det_for_4:
+
+	 JMP out_of_det
+
+
+out_of_det:
+
+
 
 		mov	eax, 1       ;system call number (sys_exit)
 		mov	ebx, 0		;success exit status
