@@ -77,37 +77,37 @@ section	.text
 
 	 L2:
 		pusha
-		
+
 		 mov	eax, SYS_WRITE
 		 mov	ebx, STDOUT
 		 mov	ecx, msg_invit1
 		 mov	edx, msg_invit1_len
 		 int	0x80
-	
+
 		 mov al, [i]
 		 call print_num
-	
+
 		 mov	eax, SYS_WRITE
 		 mov	ebx, STDOUT
 		 mov	ecx, msg_invit2
 		 mov	edx, msg_invit2_len
 		 int	0x80
-	
+
 		 mov al, [j]
 		 call print_num
-	
+
 		 mov	eax, SYS_WRITE
 		 mov	ebx, STDOUT
 		 mov	ecx, msg_invit3
 		 mov	edx, msg_invit3_len
 		 int	0x80
-	
+
 		 call read_num
 		 mov [esi+2], al
-	
+
 		 mov al, [num]
 		 call print_num
-	
+
 		popa
 	 dec cl
 	 JNZ L2
