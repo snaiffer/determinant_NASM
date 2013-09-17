@@ -8,6 +8,8 @@ section	.data
 	miss				db 0
 	print_invert	db	0	; for print_num procedure: if you want inverted output set it to 1
 	det				dw	0
+	singmap			dw 0	; singmap for the matrix; Note: with dw matrix cant store more than 16 values
+	negnum			db 0
 
 ; Messages
 	msg_intro db 'The program for calculating the determinant of the matrix', 0xa, 0xa
@@ -45,6 +47,9 @@ section	.data
 
 	msg_DetIs db 'the determinant = '
 	msg_DetIs_len	equ	$ - msg_DetIs
+
+	msg_minus db '-'
+	msg_minus_len	equ	$ - msg_minus
 
 
 	matrix	times 16 dw '0'
@@ -280,6 +285,18 @@ print_num:
 		JE print_0
 
 	mov [num], al
+	shr al, 7
+	cmp al, 0
+		JE positive_num_p
+
+	mov eax, SYS_WRITE
+	mov ebx, KEYBOARD_SCREEN
+	mov ecx, msg_minus
+	mov edx, msg_minus_len
+	int 0x80
+	neg byte [num]
+
+	positive_num_p:
 
 	mov byte [nod], 0
 	mov [tempd], esp
@@ -352,6 +369,7 @@ read_num:
 		 mov byte [miss], 0
 		 mov byte [rank], 0
 		 mov byte [cur_rank], 0
+		 mov byte [negnum], 0
 		 mov ebp, esp	;save state of stack
 	read_NewChar:
 		 mov	eax, SYS_READ
@@ -363,6 +381,14 @@ read_num:
 		 cmp byte [miss], '1'
 			JE not_num
 
+		 cmp byte [temp], '-'
+			JNE check_num
+		 cmp byte [rank], 0
+			JNE set_miss
+		 mov byte [negnum], 1
+		 JMP read_NewChar
+
+	check_num:
 		 cmp byte [temp], '0'
 			JL not_num
 		 cmp byte [temp], '9'
@@ -383,6 +409,7 @@ read_num:
 		 cmp byte [temp], 0xa
 			 JE end_read
 
+	set_miss:
 		 mov byte [miss], 1
 
 		 JMP read_NewChar
@@ -427,6 +454,14 @@ read_num:
 		 mov al, [rank]
 		 cmp byte [cur_rank], al
 			JNE get_new_rank
+
+		mov al, 1
+		cmp byte [negnum], al
+		 JNE positive_num
+
+		neg byte [num]
+
+	positive_num:
 
 		mov al, [num]
 	ret
