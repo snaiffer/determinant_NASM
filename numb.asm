@@ -93,8 +93,7 @@ input_dimen:
 	 mov	ecx, msg_IncorDimen
 	 mov	edx, msg_IncorDimen_len
 	 int	0x80
-
-	JMP input_dimen
+	 JMP input_dimen
 
 correct_dimen:
 	 mov	eax, SYS_WRITE
@@ -143,9 +142,51 @@ det_for_2:
 	 sub bx, ax
 
 	 mov [det], bx
+
 	 JMP out_of_det
 
 det_for_3:
+	 mov al, [esi]
+	 mov dl, [esi+4]
+	 imul dl
+	 mov dl, [esi+8]
+	 imul dl
+	 mov [det], ax
+
+	 mov al, [esi+6]
+	 mov dl, [esi+1]
+	 imul dl
+	 mov dl, [esi+5]
+	 imul dl
+	 add [det], ax
+
+	 mov al, [esi+3]
+	 mov dl, [esi+7]
+	 imul dl
+	 mov dl, [esi+2]
+	 imul dl
+	 add [det], ax
+
+	 mov al, [esi+6]
+	 mov dl, [esi+4]
+	 imul dl
+	 mov dl, [esi+2]
+	 imul dl
+	 sub [det], ax
+
+	 mov al, [esi]
+	 mov dl, [esi+7]
+	 imul dl
+	 mov dl, [esi+5]
+	 imul dl
+	 sub [det], ax
+
+	 mov al, [esi+3]
+	 mov dl, [esi+1]
+	 imul dl
+	 mov dl, [esi+8]
+	 imul dl
+	 sub [det], ax
 
 	 JMP out_of_det
 
@@ -156,7 +197,7 @@ det_for_4:
 
 out_of_det:
 
-	 mov al, [det]
+	 mov ax, [det]
 	 call print_num
 
 		mov	eax, 1       ;system call number (sys_exit)
@@ -179,6 +220,7 @@ print_matrix:
 	 L3:
 		 pusha
 		 mov al, [esi]
+		 cbw
 		 call print_num
 
 		 mov	eax, SYS_WRITE
@@ -235,6 +277,7 @@ read_matrix:
 		 int	0x80
 
 		 mov al, [i]
+		 cbw
 		 call print_num
 
 		 mov	eax, SYS_WRITE
@@ -244,6 +287,7 @@ read_matrix:
 		 int	0x80
 
 		 mov al, [j]
+		 cbw
 		 call print_num
 
 		 mov	eax, SYS_WRITE
@@ -276,17 +320,22 @@ read_matrix:
 
 
 ; HowToUse (Example)
-;
+;	Example_1:
 ;		 mov al, [j]
+;		 cbw					; extension from 8 bites to 16 bites
+;		 call print_num
+;
+;	Example_2:
+;		 mov ax, [j]
 ;		 call print_num
 print_num:
 	pusha
-	cmp al, 0
+	cmp ax, 0
 		JE print_0
-
-	mov [num], al
-	shr al, 7
-	cmp al, 0
+		
+	mov [num], ax
+	shr ax, 15
+	cmp ax, 0
 		JE positive_num_p
 
 	mov eax, SYS_WRITE
@@ -294,7 +343,7 @@ print_num:
 	mov ecx, msg_minus
 	mov edx, msg_minus_len
 	int 0x80
-	neg byte [num]
+	neg word [num]
 
 	positive_num_p:
 
