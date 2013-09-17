@@ -63,6 +63,7 @@ section	.bss
 	cur_rank	resb	1
 	nod	resb	1
 	tempd	resd	1
+	tempw	resd	1
 
 
 
@@ -191,9 +192,205 @@ det_for_3:
 	 JMP out_of_det
 
 det_for_4:
+	 mov word [tempw], 0
 
-	 JMP out_of_det
+	 mov al, [esi+5]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+15]
+	 imul dl
+	 mov [tempw], ax
 
+	 mov al, [esi+6]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+13]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+9]
+	 mov dl, [esi+7]
+	 imul dl
+	 mov dl, [esi+14]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+13]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+7]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+5]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+14]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+6]
+	 mov dl, [esi+15]
+	 imul dl
+	 mov dl, [esi+9]
+	 imul dl
+	 sub [tempw], ax
+	 mov ax, [tempw]
+
+	 mov dl, [esi]
+	 imul dl
+	 mov [det], ax
+	 ;
+
+	 mov word [tempw], 0
+
+	 mov al, [esi+4]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+15]
+	 imul dl
+	 mov [tempw], ax
+
+	 mov al, [esi+6]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+12]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+8]
+	 mov dl, [esi+7]
+	 imul dl
+	 mov dl, [esi+14]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+12]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+7]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+4]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+14]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+6]
+	 mov dl, [esi+15]
+	 imul dl
+	 mov dl, [esi+8]
+	 imul dl
+	 sub [tempw], ax
+	 mov ax, [tempw]
+
+	 mov dl, [esi+1]
+	 imul dl
+	 sub [det], ax
+	 ;
+
+	 mov word [tempw], 0
+
+	 mov al, [esi+4]
+	 mov dl, [esi+9]
+	 imul dl
+	 mov dl, [esi+15]
+	 imul dl
+	 mov [tempw], ax
+
+	 mov al, [esi+5]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+12]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+8]
+	 mov dl, [esi+7]
+	 imul dl
+	 mov dl, [esi+13]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+12]
+	 mov dl, [esi+9]
+	 imul dl
+	 mov dl, [esi+7]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+4]
+	 mov dl, [esi+11]
+	 imul dl
+	 mov dl, [esi+13]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+5]
+	 mov dl, [esi+15]
+	 imul dl
+	 mov dl, [esi+8]
+	 imul dl
+	 sub [tempw], ax
+	 mov ax, [tempw]
+
+	 mov dl, [esi+2]
+	 imul dl
+	 add [det], ax
+	 ;
+
+	 mov word [tempw], 0
+
+	 mov al, [esi+4]
+	 mov dl, [esi+9]
+	 imul dl
+	 mov dl, [esi+14]
+	 imul dl
+	 mov [tempw], ax
+
+	 mov al, [esi+5]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+12]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+8]
+	 mov dl, [esi+6]
+	 imul dl
+	 mov dl, [esi+13]
+	 imul dl
+	 add [tempw], ax
+
+	 mov al, [esi+12]
+	 mov dl, [esi+9]
+	 imul dl
+	 mov dl, [esi+6]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+4]
+	 mov dl, [esi+10]
+	 imul dl
+	 mov dl, [esi+13]
+	 imul dl
+	 sub [tempw], ax
+
+	 mov al, [esi+5]
+	 mov dl, [esi+14]
+	 imul dl
+	 mov dl, [esi+8]
+	 imul dl
+	 sub [tempw], ax
+	 mov ax, [tempw]
+
+	 mov dl, [esi+3]
+	 imul dl
+	 sub [det], ax
+	 ;
 
 out_of_det:
 
