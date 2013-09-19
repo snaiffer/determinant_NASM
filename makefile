@@ -1,4 +1,4 @@
-numb: numb.asm
-	nasm -f elf numb.asm 
-	ld -m elf_i386 -s -o numb numb.o
-	rm numb.o
+det: det.asm
+	nasm -f elf det.asm 
+	ld -m elf_i386 -s -o det det.o
+	rm det.o
